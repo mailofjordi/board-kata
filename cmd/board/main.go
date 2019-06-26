@@ -2,21 +2,27 @@ package main
 
 import (
 	"fmt"
+	"github.com/friendsofgo/board-kata"
+	"github.com/friendsofgo/board-kata/parser"
 	"log"
-
-	board "github.com/friendsofgo/board-kata"
+	"os"
 )
 
 func main() {
 	msg, err := board.ReadInput("data/input.csv")
-	if err != nil {
+
+	if board.IsImpossibleOpenFile(err) {
 		log.Fatal(err)
 	}
 
-	// TODO: Parse each message
-	fmt.Println(msg)
+	file, err := os.Create("data/result.html")
+	defer file.Close()
 
-	//TODO: Print output into an html file
+	for _, currentMsg := range msg {
+		output := parser.Parse(currentMsg)
+		fmt.Println(output)
+		file.WriteString(output)
+	}
 
 	fmt.Println("done!")
 }

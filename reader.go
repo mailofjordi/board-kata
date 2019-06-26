@@ -9,6 +9,10 @@ import (
 	"github.com/pkg/errors"
 )
 
+type impossibleOpenFile struct {
+	error
+}
+
 // ReadInput read the file with the inputs
 func ReadInput(path string) ([]string, error) {
 	var messages []string
@@ -16,7 +20,7 @@ func ReadInput(path string) ([]string, error) {
 	f, err := os.Open(path)
 	defer f.Close()
 	if err != nil {
-		return messages, errors.Wrapf(err, "Impossible open file")
+		return messages, &impossibleOpenFile{errors.Wrapf(err, "Impossible open file")}
 	}
 	reader := csv.NewReader(bufio.NewReader(f))
 	reader.Comma = ';'
@@ -30,4 +34,12 @@ func ReadInput(path string) ([]string, error) {
 	}
 
 	return messages, nil
+}
+
+func IsImpossibleOpenFile(error error) bool {
+	err := errors.Cause(error)
+
+	_, ok := err.(*impossibleOpenFile)
+
+	return ok
 }
